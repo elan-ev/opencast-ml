@@ -12,18 +12,17 @@ Last edited: August 2017
 """
 
 from PyQt5.QtWidgets import (QWidget, QSlider,
-                             QLabel, QApplication)
+                             QLabel, QApplication, QPushButton)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QImage
-import sys
 
 from create_spectogram import plotstft
-import numpy as np
-from PIL import Image
 
 from pydub import AudioSegment
 
-import wave
+import pyaudio
+from pydub.utils import make_chunks
+
 from pylab import *
 
 class PlayerUI(QWidget):
@@ -31,34 +30,79 @@ class PlayerUI(QWidget):
     def __init__(self, input_image, audio_segment):
         super().__init__()
 
+        self.playing = False
+
         self.initUI(input_image, audio_segment)
 
     def initUI(self, input_image, audio_segment):
-        height, width = input_image.shape[1], input_image.shape[0]
-        input_image = np.require(input_image, np.uint8, 'C')
+        height, width = input_image.shape
+        input_image = np.uint8(input_image).copy()
+
         print(input_image.shape)
-        qImg = QImage(input_image, width, height, QImage.Format_Grayscale8)
-        pixmap01 = QPixmap.fromImage(qImg)
-        pixmap_image = QPixmap(pixmap01)
+        qImg = QImage(input_image.data, width, height, width, QImage.Format_Indexed8)
+        pixmap_image = QPixmap.fromImage(qImg)
         label_imageDisplay = QLabel(self)
         label_imageDisplay.setPixmap(pixmap_image)
-        label_imageDisplay.setGeometry(0, 0, width, height)
 
         sld = QSlider(Qt.Horizontal, self)
         sld.setFocusPolicy(Qt.NoFocus)
-        sld.setGeometry(12, 400, 2000, 30)
+        sld.setGeometry(0, 400, width, 30)
         sld.valueChanged[int].connect(self.changeValue)
 
-        self.setGeometry(500, 300, 2024, 500)
+        self.play_btn = QPushButton(self)
+        self.play_btn.setText("Play/Pause")
+        self.play_btn.setGeometry(30, height + 10, 100, 50)
+        self.play_btn.clicked.connect(self.play_pause)
+
+        self.audio = audio_segment
+
+        self.setGeometry(500, 300, width, height + 100)
         self.setWindowTitle('Player')
         self.show()
 
     def changeValue(self, value):
         print(value)
 
+    def play_pause(self):
+        if self.playing:
+            self.playing = False
+        else:
+            self.playing = True
+            self.playAt(0)
+
+        print(self.playing)
+
+    def playAt(self, index):
+        seg = self.audio[index:-1]
+
+        self.pyAudio = pyaudio.PyAudio()
+        self.stream = self.pyAudio.open(format=self.pyAudio.get_format_from_width(seg.sample_width),
+                        channels=seg.channels,
+                        rate=seg.frame_rate,
+                        output=True)
+
+        self.chunks = make_chunks(seg, 50)
+
+        # break audio into half-second chunks (to allows keyboard interrupts)
+        for chunk in self.chunks:
+            self.stream.write(chunk._data)
+            break
+
+    def stop(self):
+        self.stream.stop_stream()
+        self.stream.close()
+
+        self.pyAudio.terminate()
+
 
 def read_data(audio_file):
-    sound_info = next(plotstft(audio_file, seconds=10))
+    i = 0
+    for img in plotstft(audio_file, seconds=30):
+        sound_info = img
+        i += 1
+        if i > 6:
+            break
+
     audio_segment = AudioSegment.from_wav(audio_file)
 
     return sound_info, audio_segment
