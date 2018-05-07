@@ -23,13 +23,14 @@ def load_data():
     shuffle(mixed)
     return mixed
 
+def init_data():
+    data = load_data()
+    split_index = int(0.7 * len(data))
+    training_data = data[0:split_index]
+    test_data = data[split_index:-1]
+    return test_data, training_data
 
-data = load_data()
-split_index = int(0.7 * len(data))
-training_data = data[0:split_index]
-test_data = data[split_index:-1]
-
-def create_batch(data=training_data):
+def create_batch(data):
     for i in range(len(data) // batch_size):
         on = i * batch_size
         off = on + batch_size
@@ -58,9 +59,9 @@ conv_4_3 = tf.layers.conv2d(conv_4_2, 32, 3)
 shape = conv_4_3.get_shape()
 shape = [batch_size, int(shape[1] * shape[2] * shape[3])]
 
-dropout = tf.layers.dropout(tf.reshape(conv_4_3, shape), rate=0.4)
+dropout = tf.layers.dropout(tf.reshape(conv_4_3, shape), rate=0)
 readout_0 = tf.layers.dense(dropout, 1024)
-dropout_2 = tf.layers.dropout(readout_0, rate=0.4)
+dropout_2 = tf.layers.dropout(readout_0, rate=0)
 readout = tf.layers.dense(dropout_2, 2)
 
 loss = tf.losses.sparse_softmax_cross_entropy(labels, readout)
@@ -73,7 +74,7 @@ def load_image(file):
     return np.reshape(list(Image.open(base_dir + "spectograms\\" + file).getdata()), [513, 47, 1]).astype('uint8')
 
 
-def check_accuracy(sess):
+def check_accuracy(sess, test_data):
     accuracies = []
     errors = []
     for batch in create_batch(test_data):
@@ -92,13 +93,13 @@ def check_accuracy(sess):
     return errors
 
 
-saver = tf.train.Saver()
+def train_net(test_data, training_data):
+    saver = tf.train.Saver()
 
-def train_net():
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
-        check_accuracy(sess)
+        check_accuracy(sess, test_data)
 
         for i in range(150):
             print("Epoch:", str(i))
@@ -106,7 +107,7 @@ def train_net():
             shuffle(training_data)
 
             losses = []
-            for batch in create_batch():
+            for batch in create_batch(training_data):
                 unzipped = list(zip(*batch))
                 tags = unzipped[0]
                 images = [load_image(img) for img in unzipped[1]]
@@ -115,20 +116,24 @@ def train_net():
                 losses.append(_loss)
 
             print('Losses:', losses)
-            check_accuracy(sess)
+            check_accuracy(sess, test_data)
 
             if i % 50 == 0:
                 saver.save(sess, 'D:\\noise\\checkpoints\\')
 
-        errors = check_accuracy(sess)
+        errors = check_accuracy(sess, test_data)
         for error in errors:
             print(error)
 
-def classify_audio():
+
+def load_checkpoint(sess):
+    saver = tf.train.Saver()
+    saver.restore(sess, 'D:\\noise\\checkpoints\\test')
+    return readout, inputs
+
+
+if __name__ == '__main__':
     with tf.Session() as sess:
-        saver.restore(sess, 'D:\\noise\\checkpoints')
-    print("")
-
-
-classify_audio()
-
+        load_checkpoint(sess)
+        test_data, training_data = init_data()
+        check_accuracy(sess, test_data)

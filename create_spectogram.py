@@ -79,6 +79,24 @@ def plotstft(audiopath, binsize=2 ** 10, seconds=10.0):
         yield np.transpose(np.transpose(np.transpose(img)))
         current += step_size
 
+def audio_to_complete_spectogram(audiopath):
+    complete = None
+    for part in plotstft(audiopath):
+        if complete is None:
+            complete = part
+        else:
+            complete = np.concatenate((complete, part), axis=1)
+    return complete
+
+
+def audio_to_complete_diff_spectogram(audio1, audio2):
+    complete = None
+    for part1, part2 in zip(plotstft(audio1), plotstft(audio2)):
+        if complete is None:
+            complete = np.absolute(part1 - part2)
+        else:
+            complete = np.concatenate((complete, np.absolute(part1 - part2)), axis=1)
+    return complete
 
 def mse(img):
     flat = img.flatten()
