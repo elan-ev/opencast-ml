@@ -89,7 +89,7 @@ def audio_to_complete_spectogram(audiopath):
     return complete
 
 
-def audio_to_complete_diff_spectogram(audio1, audio2):
+def  audio_to_complete_diff_spectogram(audio1, audio2):
     complete = None
     for part1, part2 in zip(plotstft(audio1), plotstft(audio2)):
         if complete is None:
@@ -105,21 +105,22 @@ def mse(img):
     # return np.median(np.square(img.flatten()))
 
 if __name__ == '__main__':
-    seconds = 0.5
+    seconds = 5
 
-    wav1 = plotstft("D:\\noise\\original_short.wav", seconds=seconds)
-    wav2 = plotstft("D:\\noise\\filtered_short.wav", seconds=seconds)
+    wav1 = plotstft("D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav", seconds=seconds)
+    wav2 = plotstft("D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut_filtered.wav", seconds=seconds)
 
     i = 0
     mses = []
-    for part1, part2 in zip(wav1, wav2):
+    for part1 in wav1: #, part2 in zip(wav1, wav2):
         #img = np.concatenate((part1, part2))
         #img = Image.fromarray(np.uint8(img), 'L')
         #img.save("/home/sebi/audio-tests/spectograms/spectogram_" + str(i) + ".png")
 
-        diff = np.absolute(part1 - part2)
+        #diff = np.absolute(part1 - part2)
+        diff = part1
         img = Image.fromarray(np.uint8(diff), 'L')
-        img.save("D:\\noise\\spectograms\\spectogram_" + str(i).zfill(5) + "_diff.png")
+        img.save("D:\\noise\\spectograms\\5s\\spectogram_" + str(i).zfill(5) + "_diff.png")
 
         #all_in_one = np.concatenate((part1, diff, part2))
         #img = Image.fromarray(np.uint8(all_in_one), 'L')
@@ -129,25 +130,6 @@ if __name__ == '__main__':
         mses.append(tmp)
 
         i += 1
-
-        if i > 2000:
-            break
-
-        if i == (90 // seconds):
-            print(tmp)
-            #plt.hist(diff.flatten(), bins=200)
-            #plt.show()
-
-        if i == (170 // seconds):
-            print(tmp)
-            #plt.hist(diff.flatten(), bins=200)
-            #plt.show()
-
-        if i % (1000 // seconds) == 0:
-            print(str(i * seconds), ":", tmp, "    (low:", np.min(mses), ", high:", np.max(mses), ", avg:", np.mean(mses))
-            #plt.hist(mses, bins=200)
-            #plt.show()
-
 
     mses -= np.min(mses)
     mses /= np.max(mses)
