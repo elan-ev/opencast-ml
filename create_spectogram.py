@@ -89,7 +89,7 @@ def audio_to_complete_spectogram(audiopath):
     return complete
 
 
-def audio_to_complete_diff_spectogram(audio1, audio2):
+def  audio_to_complete_diff_spectogram(audio1, audio2):
     complete = None
     for part1, part2 in zip(plotstft(audio1), plotstft(audio2)):
         if complete is None:
@@ -112,12 +112,13 @@ if __name__ == '__main__':
 
     i = 0
     mses = []
-    for part1, part2 in zip(wav1, wav2):
+    for part1 in wav1: #, part2 in zip(wav1, wav2):
         #img = np.concatenate((part1, part2))
         #img = Image.fromarray(np.uint8(img), 'L')
         #img.save("/home/sebi/audio-tests/spectograms/spectogram_" + str(i) + ".png")
 
-        diff = np.absolute(part1 - part2)
+        #diff = np.absolute(part1 - part2)
+        diff = part1
         img = Image.fromarray(np.uint8(diff), 'L')
         img.save("/home/sebi/audio-tests/long/spectograms/spectogram_" + str(i).zfill(5) + "_diff.png")
 
@@ -129,25 +130,6 @@ if __name__ == '__main__':
         mses.append(tmp)
 
         i += 1
-
-        #if i > 2000:
-        #    break
-
-        #if i == (90 // seconds):
-        #    print(tmp)
-            #plt.hist(diff.flatten(), bins=200)
-            #plt.show()
-
-        #if i == (170 // seconds):
-        #    print(tmp)
-            #plt.hist(diff.flatten(), bins=200)
-            #plt.show()
-
-        #if i % (1000 // seconds) == 0:
-        #    print(str(i * seconds), ":", tmp, "    (low:", np.min(mses), ", high:", np.max(mses), ", avg:", np.mean(mses))
-            #plt.hist(mses, bins=200)
-            #plt.show()
-
 
     mses -= np.min(mses)
     mses /= np.max(mses)

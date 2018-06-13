@@ -154,7 +154,7 @@ def predict_stream(spectogram):
     batch_size = 72
 
     with tf.Session() as sess:
-        prediction, net_inputs = load_checkpoint(sess)
+        prediction, net_inputs, dropout_rate = load_checkpoint(sess)
 
         ret = []
         batch = []
@@ -171,7 +171,7 @@ def predict_stream(spectogram):
             batch.append(np.reshape(spectogram[:, start:end], [513, 47, 1]).astype('uint8'))
 
             if len(batch) == batch_size:
-                output = sess.run(prediction, {net_inputs: np.array(batch)})
+                output = sess.run(prediction, {net_inputs: np.array(batch), dropout_rate: 0})
                 output = np.argmax(output, axis=1)
                 ret.extend(output)
                 batch = []
