@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4d7036b1-44c9-4f2f-a48e-ff454b294f56" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/tagged.txt" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/tagged_empty.txt" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/tagged_new.txt" />
-      <change beforePath="$PROJECT_DIR$/create_spectogram.py" afterPath="$PROJECT_DIR$/create_spectogram.py" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/distinguish.py" afterPath="$PROJECT_DIR$/distinguish.py" />
-      <change beforePath="$PROJECT_DIR$/player_ui.py" afterPath="$PROJECT_DIR$/player_ui.py" />
-      <change beforePath="$PROJECT_DIR$/sandbox.py" afterPath="$PROJECT_DIR$/sandbox.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -19,6 +14,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/opencast_ml$create_spectogram.coverage" NAME="create_spectogram Coverage Results" MODIFIED="1526987306627" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/opencast_ml$distinguish.coverage" NAME="distinguish Coverage Results" MODIFIED="1528882087554" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
@@ -35,8 +31,8 @@
       <file leaf-file-name="player_ui.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/player_ui.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="43" column="13" lean-forward="false" selection-start-line="43" selection-start-column="13" selection-end-line="43" selection-end-column="13" />
+            <state relative-caret-position="-5">
+              <caret line="135" column="26" lean-forward="false" selection-start-line="135" selection-start-column="26" selection-end-line="135" selection-end-column="26" />
               <folding>
                 <element signature="e#0#110#0" expanded="true" />
               </folding>
@@ -54,11 +50,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="create_spectogram.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="create_spectogram.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/create_spectogram.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="705">
-              <caret line="133" column="0" lean-forward="false" selection-start-line="133" selection-start-column="0" selection-end-line="133" selection-end-column="0" />
+            <state relative-caret-position="1926">
+              <caret line="107" column="17" lean-forward="false" selection-start-line="107" selection-start-column="17" selection-end-line="107" selection-end-column="17" />
               <folding>
                 <element signature="e#156#174#0" expanded="true" />
               </folding>
@@ -69,12 +65,21 @@
       <file leaf-file-name="distinguish.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/distinguish.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2448">
-              <caret line="141" column="4" lean-forward="false" selection-start-line="141" selection-start-column="4" selection-end-line="141" selection-end-column="4" />
+            <state relative-caret-position="1908">
+              <caret line="106" column="0" lean-forward="false" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
-                <marker date="1528879601044" expanded="true" signature="4988:5023" ph="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="vanilla_conv.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/models/vanilla_conv.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="216">
+              <caret line="18" column="33" lean-forward="false" selection-start-line="18" selection-start-column="33" selection-end-line="18" selection-end-column="33" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -93,6 +98,7 @@
       <find>pyaudio</find>
       <find>#</find>
       <find>pyAudio</find>
+      <find>readout</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -103,9 +109,10 @@
       <list>
         <option value="$PROJECT_DIR$/player.py" />
         <option value="$PROJECT_DIR$/model.py" />
-        <option value="$PROJECT_DIR$/distinguish.py" />
         <option value="$PROJECT_DIR$/player_ui.py" />
         <option value="$PROJECT_DIR$/create_spectogram.py" />
+        <option value="$PROJECT_DIR$/distinguish.py" />
+        <option value="$PROJECT_DIR$/models/vanilla_conv.py" />
       </list>
     </option>
   </component>
@@ -147,6 +154,11 @@
               <item name="opencast-ml" type="b2602c69:ProjectViewProjectNode" />
               <item name="opencast-ml" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="opencast-ml" type="b2602c69:ProjectViewProjectNode" />
+              <item name="opencast-ml" type="462c0819:PsiDirectoryNode" />
+              <item name="models" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -171,7 +183,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.create_spectogram">
+  <component name="RunManager" selected="Python.distinguish">
     <configuration name="create_spectogram" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -256,10 +268,10 @@
     </list>
     <recent_temporary>
       <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Python.create_spectogram" />
-        <item index="1" class="java.lang.String" itemvalue="Python.player_ui" />
-        <item index="2" class="java.lang.String" itemvalue="Python.player" />
-        <item index="3" class="java.lang.String" itemvalue="Python.distinguish" />
+        <item index="0" class="java.lang.String" itemvalue="Python.distinguish" />
+        <item index="1" class="java.lang.String" itemvalue="Python.create_spectogram" />
+        <item index="2" class="java.lang.String" itemvalue="Python.player_ui" />
+        <item index="3" class="java.lang.String" itemvalue="Python.player" />
       </list>
     </recent_temporary>
   </component>
@@ -287,7 +299,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25815368" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -307,6 +319,9 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.md" />
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -349,7 +364,6 @@
           <caret line="128" column="4" lean-forward="false" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
-            <marker date="1528879601044" expanded="true" signature="4988:5023" ph="..." />
           </folding>
         </state>
       </provider>
@@ -396,7 +410,6 @@
           <caret line="90" column="8" lean-forward="false" selection-start-line="90" selection-start-column="8" selection-end-line="90" selection-end-column="8" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
-            <marker date="1528879601044" expanded="true" signature="4988:5023" ph="..." />
           </folding>
         </state>
       </provider>
@@ -443,7 +456,6 @@
           <caret line="90" column="8" lean-forward="false" selection-start-line="90" selection-start-column="8" selection-end-line="90" selection-end-column="8" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
-            <marker date="1528879601044" expanded="true" signature="4988:5023" ph="..." />
           </folding>
         </state>
       </provider>
@@ -482,7 +494,6 @@
           <caret line="90" column="8" lean-forward="true" selection-start-line="90" selection-start-column="8" selection-end-line="90" selection-end-column="8" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
-            <marker date="1528879601044" expanded="true" signature="4988:5023" ph="..." />
           </folding>
         </state>
       </provider>
@@ -616,6 +627,14 @@
     <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/-82020501/time.py" />
     <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/threading.py" />
     <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/-82020501/PyQt5/QtCore/Qt.py" />
+    <entry file="file://$PROJECT_DIR$/sandbox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/player.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="18">
@@ -624,21 +643,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/distinguish.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2448">
-          <caret line="141" column="4" lean-forward="false" selection-start-line="141" selection-start-column="4" selection-end-line="141" selection-end-column="4" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-            <marker date="1528879601044" expanded="true" signature="4988:5023" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/player_ui.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="43" column="13" lean-forward="false" selection-start-line="43" selection-start-column="13" selection-end-line="43" selection-end-column="13" />
+        <state relative-caret-position="-5">
+          <caret line="135" column="26" lean-forward="false" selection-start-line="135" selection-start-column="26" selection-end-line="135" selection-end-column="26" />
           <folding>
             <element signature="e#0#110#0" expanded="true" />
           </folding>
@@ -647,18 +655,36 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/create_spectogram.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="705">
-          <caret line="133" column="0" lean-forward="false" selection-start-line="133" selection-start-column="0" selection-end-line="133" selection-end-column="0" />
+        <state relative-caret-position="1926">
+          <caret line="107" column="17" lean-forward="false" selection-start-line="107" selection-start-column="17" selection-end-line="107" selection-end-column="17" />
           <folding>
             <element signature="e#156#174#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sandbox.py">
+    <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distinguish.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1908">
+          <caret line="106" column="0" lean-forward="false" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/vanilla_conv.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="18" column="33" lean-forward="false" selection-start-line="18" selection-start-column="33" selection-end-line="18" selection-end-column="33" />
           <folding />
         </state>
       </provider>
