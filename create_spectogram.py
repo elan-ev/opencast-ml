@@ -105,10 +105,10 @@ def mse(img):
     # return np.median(np.square(img.flatten()))
 
 if __name__ == '__main__':
-    seconds = 0.5
+    seconds = 5.0
 
-    wav1 = plotstft("D:\\noise\\original_short.wav", seconds=seconds)
-    wav2 = plotstft("D:\\noise\\filtered_short.wav", seconds=seconds)
+    wav1 = plotstft("/home/sebi/audio-tests/long/input.wav", seconds=seconds)
+    wav2 = plotstft("/home/sebi/audio-tests/long/input_filtered.wav", seconds=seconds)
 
     i = 0
     mses = []
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
         diff = np.absolute(part1 - part2)
         img = Image.fromarray(np.uint8(diff), 'L')
-        img.save("D:\\noise\\spectograms\\spectogram_" + str(i).zfill(5) + "_diff.png")
+        img.save("/home/sebi/audio-tests/long/spectograms/spectogram_" + str(i).zfill(5) + "_diff.png")
 
         #all_in_one = np.concatenate((part1, diff, part2))
         #img = Image.fromarray(np.uint8(all_in_one), 'L')
@@ -130,21 +130,21 @@ if __name__ == '__main__':
 
         i += 1
 
-        if i > 2000:
-            break
+        #if i > 2000:
+        #    break
 
-        if i == (90 // seconds):
-            print(tmp)
+        #if i == (90 // seconds):
+        #    print(tmp)
             #plt.hist(diff.flatten(), bins=200)
             #plt.show()
 
-        if i == (170 // seconds):
-            print(tmp)
+        #if i == (170 // seconds):
+        #    print(tmp)
             #plt.hist(diff.flatten(), bins=200)
             #plt.show()
 
-        if i % (1000 // seconds) == 0:
-            print(str(i * seconds), ":", tmp, "    (low:", np.min(mses), ", high:", np.max(mses), ", avg:", np.mean(mses))
+        #if i % (1000 // seconds) == 0:
+        #    print(str(i * seconds), ":", tmp, "    (low:", np.min(mses), ", high:", np.max(mses), ", avg:", np.mean(mses))
             #plt.hist(mses, bins=200)
             #plt.show()
 
@@ -153,3 +153,4 @@ if __name__ == '__main__':
     mses /= np.max(mses)
     plt.hist(mses, bins=500)
     plt.show()
+

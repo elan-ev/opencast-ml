@@ -18,8 +18,6 @@ from distinguish import load_checkpoint
 
 import tensorflow as tf
 
-from PIL import Image
-
 import time
 
 class PlayerUI(QWidget):
