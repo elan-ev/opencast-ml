@@ -105,10 +105,10 @@ def mse(img):
     # return np.median(np.square(img.flatten()))
 
 if __name__ == '__main__':
-    seconds = 5
+    seconds = 5.0
 
-    wav1 = plotstft("D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav", seconds=seconds)
-    wav2 = plotstft("D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut_filtered.wav", seconds=seconds)
+    wav1 = plotstft("/home/sebi/audio-tests/long/input.wav", seconds=seconds)
+    wav2 = plotstft("/home/sebi/audio-tests/long/input_filtered.wav", seconds=seconds)
 
     i = 0
     mses = []
@@ -120,7 +120,7 @@ if __name__ == '__main__':
         #diff = np.absolute(part1 - part2)
         diff = part1
         img = Image.fromarray(np.uint8(diff), 'L')
-        img.save("D:\\noise\\spectograms\\5s\\spectogram_" + str(i).zfill(5) + "_diff.png")
+        img.save("/home/sebi/audio-tests/long/spectograms/spectogram_" + str(i).zfill(5) + "_diff.png")
 
         #all_in_one = np.concatenate((part1, diff, part2))
         #img = Image.fromarray(np.uint8(all_in_one), 'L')
@@ -135,3 +135,4 @@ if __name__ == '__main__':
     mses /= np.max(mses)
     plt.hist(mses, bins=500)
     plt.show()
+
