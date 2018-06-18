@@ -151,7 +151,8 @@ class PlayerUI(QWidget):
             self.indicator.setStyleSheet(self.color_green)
 
 def predict_stream(spectogram):
-    batch_size = 72
+    batch_size = 32
+    input_width = 469
 
     with tf.Session() as sess:
         prediction, net_inputs, dropout_rate = load_checkpoint(sess)
@@ -160,15 +161,15 @@ def predict_stream(spectogram):
         batch = []
         for i in range(spectogram.shape[1]):
             current_window = i
-            if current_window < 47 / 2:
-                current_window = 47 / 2
-            elif current_window - (47/2) + 47 >= spectogram.shape[1]:
-                current_window = spectogram.shape[1] - (47 / 2)
+            if current_window < input_width / 2:
+                current_window = input_width / 2
+            elif current_window - (input_width/2) + input_width >= spectogram.shape[1]:
+                current_window = spectogram.shape[1] - (input_width / 2)
 
-            start = int(current_window - (47 / 2))
-            end = int(start + 47)
+            start = int(current_window - (input_width / 2))
+            end = int(start + input_width)
 
-            batch.append(np.reshape(spectogram[:, start:end], [513, 47, 1]).astype('uint8'))
+            batch.append(np.reshape(spectogram[:, start:end], [513, input_width, 1]).astype('uint8'))
 
             if len(batch) == batch_size:
                 output = sess.run(prediction, {net_inputs: np.array(batch), dropout_rate: 0})
@@ -185,8 +186,8 @@ def read_data(audio_file):
     return sound_info, audio_segment
 
 if __name__ == '__main__':
-    spectogram, audio_segment = read_data('D:\\noise\\short.wav')
-    predictions = predict_stream(audio_to_complete_diff_spectogram('D:\\noise\\short.wav', 'D:\\noise\\short_filtered.wav'))
+    spectogram, audio_segment = read_data('D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav')
+    predictions = predict_stream(spectogram)
     app = QApplication(sys.argv)
     ex = PlayerUI(spectogram, audio_segment, predictions)
-    sys.exit(app.exec_())
+    # sys.exit(app.exec_())

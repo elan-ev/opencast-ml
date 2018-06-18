@@ -1,3 +1,8 @@
+import tensorflow as tf
+import distinguish
+import numpy as np
+from create_spectogram import audio_to_complete_spectogram
+
 def create_tag_file():
     lines = []
     step = 5000
@@ -43,4 +48,36 @@ def change_tag_interval():
     for item in new_lines:
       out.write("%s\n" % item)
 
-create_tag_file()
+
+def check_uncertainty_of_net():
+    spectogram = audio_to_complete_spectogram('D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav')
+    batch_size = 32
+    input_width = 469
+
+    with tf.Session() as sess:
+        readout, inputs, dropout_rate = distinguish.load_checkpoint(sess)
+
+        batch = []
+        ret = []
+        for i in range(spectogram.shape[1]):
+            current_window = i
+            if current_window < input_width / 2:
+                current_window = input_width / 2
+            elif current_window - (input_width / 2) + input_width >= spectogram.shape[1]:
+                current_window = spectogram.shape[1] - (input_width / 2)
+
+            start = int(current_window - (input_width / 2))
+            end = int(start + input_width)
+
+            batch.append(np.reshape(spectogram[:, start:end], [513, input_width, 1]).astype('uint8'))
+
+            if len(batch) == batch_size:
+                output = sess.run(readout, {inputs: np.array(batch), dropout_rate: 0})
+                output = np.argmax(output, axis=1)
+
+                ret.extend(output)
+                batch = []
+
+    return batch
+
+print(check_uncertainty_of_net())

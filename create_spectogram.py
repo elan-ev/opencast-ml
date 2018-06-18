@@ -63,7 +63,7 @@ def logscale_spec(spec, sr=44100, factor=20.):
     return newspec, freqs
 
 
-def plotstft(audiopath, binsize=2 ** 10, seconds=10.0):
+def plotstft(audiopath, binsize=2 ** 10, seconds=5.0):
     samplerate, samples = wav.read(audiopath)
 
     print("Samplerate:", samplerate)

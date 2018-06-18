@@ -1,10 +1,14 @@
 import tensorflow as tf
+from hypergradient.Adam_HD_optimizer import AdamHDOptimizer
+from hypergradient.SGDN_HD_optimizer import MomentumSGDHDOptimizer
 
 class VanillaConv:
-    def __init__(self, learning_rate=1e-3):
+    def __init__(self, learning_rate=1e-4):
         self.inputs = tf.placeholder(tf.float32, [None, 513, 469, 1])
         self.labels = tf.placeholder(tf.int32, [None])
         self.dropout_rate = tf.placeholder(tf.float32)
+
+        self.global_step = tf.Variable(0, trainable=False, name='global_step')
 
         conv_0_1 = tf.layers.conv2d(self.inputs, 32, 3)
         pool_0 = tf.layers.max_pooling2d(conv_0_1, [3, 3], 2)
@@ -40,10 +44,14 @@ class VanillaConv:
         self.print_convolution(self.readout)
 
         self.loss = tf.losses.sparse_softmax_cross_entropy(self.labels, self.readout)
-        self.optimize = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.loss)
+        self.optimize = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.loss, global_step=self.global_step)
+        #self.optimize = MomentumSGDHDOptimizer(alpha_0=learning_rate).minimize(self.loss, self.global_step)
 
         self.prediction_comparison = tf.equal(tf.cast(self.labels, tf.int64), tf.argmax(self.readout, axis=1))
         self.accuracy = tf.reduce_mean(tf.cast(self.prediction_comparison, tf.float32))
+
+        tf.summary.scalar('loss', tf.reduce_mean(self.loss))
+        self.summary = tf.summary.merge_all()
 
     def print_convolution(self, last):
         if len(last.op.inputs) > 0:
