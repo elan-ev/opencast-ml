@@ -91,6 +91,7 @@ class PlayerUI(QWidget):
     def update(self):
         while self.window_open:
             if self.playing and self.chunks is not None:
+                print(len(self.chunks), self.current_index)
                 self.stream.write(self.chunks[self.current_index]._data)
                 self.sld.valueChanged[int].disconnect(self.changeValue)
                 self.sld.setSliderPosition(10000.0 / len(self.chunks) * self.current_index)
@@ -99,6 +100,13 @@ class PlayerUI(QWidget):
                 self.predict()
 
                 self.current_index += 1
+
+                if self.current_index >= len(self.chunks):
+                    self.current_index = 0
+                    self.sld.valueChanged[int].disconnect(self.changeValue)
+                    self.sld.setSliderPosition(0)
+                    self.sld.valueChanged[int].connect(self.changeValue)
+                    self.playAt(0)
 
             time.sleep(0.01)
 
@@ -151,7 +159,7 @@ class PlayerUI(QWidget):
             self.indicator.setStyleSheet(self.color_green)
 
 def predict_stream(spectogram):
-    batch_size = 32
+    batch_size = 64
     input_width = 469
 
     with tf.Session() as sess:
@@ -160,6 +168,9 @@ def predict_stream(spectogram):
         ret = []
         batch = []
         for i in range(spectogram.shape[1]):
+            if i % 100 == 0:
+                print('predicting: ', i, 'of', spectogram.shape[1])
+
             current_window = i
             if current_window < input_width / 2:
                 current_window = input_width / 2
@@ -179,15 +190,16 @@ def predict_stream(spectogram):
 
     return ret
 
-def read_data(audio_file):
-    sound_info = audio_to_complete_spectogram(audio_file)
-    audio_segment = AudioSegment.from_wav(audio_file)
+def read_data(audio_file, rng):
+    sound_info = audio_to_complete_spectogram(audio_file, rng)
+    audio_segment = AudioSegment.from_wav(audio_file)[rng.start*1000:rng.stop*1000]
 
     return sound_info, audio_segment
 
 if __name__ == '__main__':
-    spectogram, audio_segment = read_data('D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav')
+    rng = range(300, 320)
+    spectogram, audio_segment = read_data('D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav', rng)
     predictions = predict_stream(spectogram)
     app = QApplication(sys.argv)
     ex = PlayerUI(spectogram, audio_segment, predictions)
-    # sys.exit(app.exec_())
+    sys.exit(app.exec_())

@@ -63,14 +63,18 @@ def logscale_spec(spec, sr=44100, factor=20.):
     return newspec, freqs
 
 
-def plotstft(audiopath, binsize=2 ** 10, seconds=5.0):
+def plotstft(audiopath, binsize=2 ** 10, seconds=5.0, rng=None):
     samplerate, samples = wav.read(audiopath)
 
     print("Samplerate:", samplerate)
 
-    current = 0
     step_size = int(samplerate * seconds)
-    while current < len(samples):
+
+    if rng is None:
+        rng = range(0, len(samples))
+
+    for cnt in rng:
+        current = cnt * step_size
         s = stft(samples[current:current+step_size], binsize)
 
         sshow, freq = logscale_spec(s, factor=1.0, sr=samplerate)
@@ -79,9 +83,9 @@ def plotstft(audiopath, binsize=2 ** 10, seconds=5.0):
         yield np.transpose(np.transpose(np.transpose(img)))
         current += step_size
 
-def audio_to_complete_spectogram(audiopath):
+def audio_to_complete_spectogram(audiopath, rng=None):
     complete = None
-    for part in plotstft(audiopath):
+    for part in plotstft(audiopath, rng=rng):
         if complete is None:
             complete = part
         else:
@@ -89,7 +93,7 @@ def audio_to_complete_spectogram(audiopath):
     return complete
 
 
-def  audio_to_complete_diff_spectogram(audio1, audio2):
+def audio_to_complete_diff_spectogram(audio1, audio2):
     complete = None
     for part1, part2 in zip(plotstft(audio1), plotstft(audio2)):
         if complete is None:
@@ -97,6 +101,7 @@ def  audio_to_complete_diff_spectogram(audio1, audio2):
         else:
             complete = np.concatenate((complete, np.absolute(part1 - part2)), axis=1)
     return complete
+
 
 def mse(img):
     flat = img.flatten()
