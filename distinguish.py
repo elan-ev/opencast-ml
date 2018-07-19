@@ -115,10 +115,10 @@ def load_checkpoint(sess):
 
 
 if __name__ == '__main__':
-    #test_data, training_data = init_data()
-    #train_net(test_data, training_data)
+    test_data, training_data = init_data()
+    train_net(test_data, training_data)
 
-    with tf.Session() as sess:
-        load_checkpoint(sess)
-    #    test_data, training_data = init_data()
-    #    check_accuracy(sess, test_data)
+    #with tf.Session() as sess:
+        # load_checkpoint(sess)
+        #test_data, training_data = init_data()
+        #check_accuracy(sess, test_data)

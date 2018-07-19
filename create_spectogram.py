@@ -7,8 +7,8 @@ import numpy as np
 import scipy.io.wavfile as wav
 from numpy.lib import stride_tricks
 from PIL import Image
-from matplotlib import cm
-import matplotlib.pyplot as plt
+from os.path import join
+import sys
 
 """ short time fourier transform of audio signal """
 
@@ -71,7 +71,7 @@ def plotstft(audiopath, binsize=2 ** 10, seconds=5.0, rng=None):
     step_size = int(samplerate * seconds)
 
     if rng is None:
-        rng = range(0, len(samples))
+        rng = range(0, int(len(samples) / step_size))
 
     for cnt in rng:
         current = cnt * step_size
@@ -109,35 +109,47 @@ def mse(img):
     return np.sum(np.square(flat)) / max_error
     # return np.median(np.square(img.flatten()))
 
+
+# Print iterations progress
+def progress(count, total, status=''):
+    bar_len = 60
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = round(100.0 * count / float(total), 1)
+    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+
+    print('\r[%s] %s%s ...%s' % (bar, percents, '%', status), end='\r')
+
 if __name__ == '__main__':
-    seconds = 5.0
+    seconds = 5.4584
+    folder = 'D:\\noise\\records\\'
 
-    wav1 = plotstft("/home/sebi/audio-tests/long/input.wav", seconds=seconds)
-    wav2 = plotstft("/home/sebi/audio-tests/long/input_filtered.wav", seconds=seconds)
+    files = [#'97dae982-3246-431d-a615-86638992f272.wav', '9b742d18-903e-4236-ba35-a7f76790c7d7.wav',
+             #'d32f1981-2bb0-4c98-8b16-4e02be6fb256.wav', '5e212b2d-3c6b-4ba0-913f-30c7cd8d8984.wav',
+             #'7dcacfcf-2a33-4298-bc52-18afd6437be7.wav', '8e0223f9-4357-4fbb-8ede-f81477dec101.wav',
+             #'9f45a952-67d6-4d23-b0ab-a4bcec74fdc1.wav', 'track-1.wav']
+            '1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav']
 
-    i = 0
-    mses = []
-    for part1 in wav1: #, part2 in zip(wav1, wav2):
-        #img = np.concatenate((part1, part2))
-        #img = Image.fromarray(np.uint8(img), 'L')
-        #img.save("/home/sebi/audio-tests/spectograms/spectogram_" + str(i) + ".png")
+    k = 0
+    for file in files:
+        f = join(folder, file)
 
-        #diff = np.absolute(part1 - part2)
-        diff = part1
-        img = Image.fromarray(np.uint8(diff), 'L')
-        img.save("/home/sebi/audio-tests/long/spectograms/spectogram_" + str(i).zfill(5) + "_diff.png")
+        wav1 = plotstft(f, seconds=seconds)
+        wav1 = [arr for arr in wav1]
 
-        #all_in_one = np.concatenate((part1, diff, part2))
-        #img = Image.fromarray(np.uint8(all_in_one), 'L')
-        #img.save("/home/sebi/audio-tests/spectograms/spectogram_" + str(i) + "_all_in_one.png")
+        complete = np.concatenate(wav1, axis=1)
+        print(np.shape(complete))
 
-        tmp = mse(diff)
-        mses.append(tmp)
+        counter = 0
+        for i in range(0, len(complete[0]), 50):
+            part = complete[:, i:i+512]
+            img = Image.fromarray(np.uint8(part), 'L').crop((0, 0, 512, 512))
+            img.save("D:\\noise\\spectograms\\unsupervised\\file_" + str(k) + "_spectogram_" + str(i).zfill(10) + ".png")
 
-        i += 1
+            if counter % 100 == 0:
+                progress(i, len(complete[0]), 'File: ' + file)
+                counter += 1
 
-    mses -= np.min(mses)
-    mses /= np.max(mses)
-    plt.hist(mses, bins=500)
-    plt.show()
+        print()
 
+        k += 1

@@ -91,7 +91,6 @@ class PlayerUI(QWidget):
     def update(self):
         while self.window_open:
             if self.playing and self.chunks is not None:
-                print(len(self.chunks), self.current_index)
                 self.stream.write(self.chunks[self.current_index]._data)
                 self.sld.valueChanged[int].disconnect(self.changeValue)
                 self.sld.setSliderPosition(10000.0 / len(self.chunks) * self.current_index)
@@ -197,7 +196,7 @@ def read_data(audio_file, rng):
     return sound_info, audio_segment
 
 if __name__ == '__main__':
-    rng = range(300, 320)
+    rng = range(400, 450)
     spectogram, audio_segment = read_data('D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav', rng)
     predictions = predict_stream(spectogram)
     app = QApplication(sys.argv)
