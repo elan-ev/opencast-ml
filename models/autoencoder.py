@@ -79,11 +79,13 @@ def load_data(batch_size=32):
     files = [f for f in listdir(path) if isfile(join(path, f))]
     random.shuffle(files)
 
+    steps = len(files) // batch_size
+
     for i in range(0, len(files), batch_size):
         to = i + batch_size
-        if to >= len(files):
-            to = len(files) - 1
-        yield np.array([np.array(Image.open(join(path, f))).reshape(512, 512, 1) for f in files[i:to]])
+        if to > len(files):
+            to = len(files)
+        yield np.array([np.array(Image.open(join(path, f))).reshape(512, 512, 1) for f in files[i:to]]), steps
 
 
 def load_readout_data(batch_size=32):
@@ -110,7 +112,7 @@ def load_readout_data(batch_size=32):
 
 
 def test_net(sess, model, prefix='after', amount=5):
-    data = next(load_data(batch_size=amount))
+    data, _ = next(load_data(batch_size=amount))
     test_images = sess.run([model.outputs], {model.inputs: data})[0]
 
     for cnt in range(len(data)):
@@ -134,9 +136,11 @@ def train_encoder():
         test_net(sess, ao, 'before')
 
         for epoch in range(epochs):
-            for data in load_data():
+            i = 0
+            for data, steps in load_data():
                 _, _loss = sess.run([ao.optimize, ao.loss], {ao.inputs: data})
-                print(_loss)
+                print(_loss, '(' + str(i) + ' of ' + str(steps) + ') [Epoch: ' + str(epoch) + ']')
+                i += 1
 
             saver.save(sess, 'ao_checkpoints\\autoencoder', global_step=ao.global_step)
 

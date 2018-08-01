@@ -1,7 +1,11 @@
 import tensorflow as tf
-import distinguish
+#import distinguish
 import numpy as np
-from create_spectogram import audio_to_complete_spectogram
+#from create_spectogram import audio_to_complete_spectogram
+from PIL import Image
+from os import listdir
+from os.path import isfile, join
+
 
 def create_tag_file():
     lines = []
@@ -80,4 +84,24 @@ def check_uncertainty_of_net():
 
     return batch
 
-print(check_uncertainty_of_net())
+def check_image_sizes():
+    path = 'D:\\noise\\spectograms\\unsupervised'
+    files = [f for f in listdir(path) if isfile(join(path, f))]
+
+    for f in files:
+        img = Image.open(join(path, f))
+        w, h = img.size
+        if w != 512 or h != 512:
+            print(img.size, f)
+
+def check_array_loop():
+    files = [x for x in range(76577)]
+    batch_size = 32
+    for i in range(0, len(files), batch_size):
+        to = i + batch_size
+        if to > len(files):
+            to = len(files)
+        result = np.array([f for f in files[i:to]])
+        print(i, len(result), len(files))
+
+check_array_loop()
