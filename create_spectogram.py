@@ -84,8 +84,11 @@ def plotstft(audiopath, binsize=2 ** 10, seconds=5.0, rng=None):
         current += step_size
 
 def audio_to_complete_spectogram(audiopath, rng=None):
+    seconds = 5.4584
     complete = None
-    for part in plotstft(audiopath, rng=rng):
+    for part in plotstft(audiopath, seconds=seconds, rng=rng):
+        img = Image.fromarray(np.uint8(part), 'L').crop((0, 0, 512, 512))
+        part = np.array(img)
         if complete is None:
             complete = part
         else:

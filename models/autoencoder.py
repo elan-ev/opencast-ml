@@ -28,13 +28,14 @@ class AutoEncoder:
         net = tf.layers.conv2d(net, 128, 2)
         net = tf.layers.max_pooling2d(net, [3, 3], 2)
         net = tf.layers.conv2d(net, 64, 2)
-        net = tf.layers.conv2d(net, 32, 2)
-        net = tf.layers.conv2d(net, 32, 2)
+        net = tf.layers.conv2d(net, 64, 2)
+        net = tf.layers.conv2d(net, 64, 2)
+        net = tf.layers.conv2d(net, 64, 2)
         net = tf.layers.max_pooling2d(net, 3, 2)
-        net = tf.layers.conv2d(net, 16, 2)
-        net = tf.layers.conv2d(net, 8, 2)
-        net = tf.layers.conv2d(net, 8, 2)
-        net = tf.layers.conv2d(net, 8, 2)
+        net = tf.layers.conv2d(net, 64, 2)
+        net = tf.layers.conv2d(net, 64, 2)
+        net = tf.layers.conv2d(net, 64, 2)
+        net = tf.layers.conv2d(net, 64, 2, padding='same')
 
         shape = net.get_shape()
         shape = [tf.shape(net)[0], shape[1] * shape[2] * shape[3]]
@@ -94,7 +95,7 @@ def load_readout_data(batch_size=32):
 
     with open(base_dir + "tagged_5.4584s.txt") as f:
         tags = [int(t[0]) for t in f.readlines()[0:number_of_labels]]
-        print("zeros:", tags.count(0), " , ones:", tags.count(1))
+        # print("zeros:", tags.count(0), " , ones:", tags.count(1))
 
     mypath = base_dir + "spectograms\\5.4584s"
     images = [f for f in listdir(mypath) if isfile(join(mypath, f))][0:number_of_labels]
@@ -126,7 +127,7 @@ def test_net(sess, model, prefix='after', amount=5):
 def train_encoder():
     ao = AutoEncoder()
 
-    epochs = 50
+    epochs = 100
 
     saver = tf.train.Saver(max_to_keep=epochs)
 
@@ -148,24 +149,47 @@ def train_encoder():
 
 
 def train_readout():
-    ao = AutoEncoder()
+    tf.reset_default_graph()
 
-    epochs = 10
+    ao = AutoEncoder(learning_rate=3e-2)
+
+    epochs = 500
 
     saver = tf.train.Saver(max_to_keep=epochs)
 
     with tf.Session() as sess:
-        saver.restore(sess, tf.train.latest_checkpoint('ao_checkpoints\\autoencoder'))
+        saver.restore(sess, tf.train.latest_checkpoint('ao_checkpoints'))
+        sess.run(tf.local_variables_initializer())
 
         for epoch in range(epochs):
-            for labels, data in load_readout_data():
+            losses = []
+            accuracies = []
+
+            for labels, data in load_readout_data(batch_size=50):
                 data = np.array([np.array(Image.open(join("D:\\noise\\spectograms\\5.4584s", f))).reshape(512, 512, 1) for f in data])
 
-                _, _loss = sess.run([ao.optimize_readout, ao.loss_readout], {ao.inputs: data, ao.readout_labels: labels})
-                print(_loss)
+                training_data, training_labels = data[0:40], labels[0:40]
+                test_data, test_labels = data[40:-1], labels[40:-1]
 
-            saver.save(sess, 'ao_checkpoints\\autoencoder_with_readout', global_step=ao.global_step)
+                _, _loss = sess.run([ao.optimize_readout, ao.loss_readout], {ao.inputs: training_data, ao.readout_labels: training_labels})
+                losses.append(_loss)
 
+                _accuracy = sess.run([ao.readout_accuracy], {ao.inputs: test_data, ao.readout_labels: test_labels})
+                accuracies.append(_accuracy)
+
+            print('loss:',  np.mean(losses), 'accuracy:', np.mean(accuracies), '[Epoch:', epoch, ']')
+
+            saver.save(sess, 'ao_checkpoints_with_readout\\autoencoder_with_readout', global_step=ao.global_step)
+
+
+def load_readout_checkpoint(sess):
+    ao = AutoEncoder()
+    saver = tf.train.Saver()
+
+    saver.restore(sess, tf.train.latest_checkpoint('D:\\noise\\src\\models\\ao_checkpoints_with_readout'))
+    sess.run(tf.local_variables_initializer())
+
+    return ao.inputs, ao.readout
 
 if __name__ == '__main__':
     train_encoder()

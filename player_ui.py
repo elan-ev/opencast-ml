@@ -14,7 +14,7 @@ import threading
 
 from pylab import *
 
-from distinguish import load_checkpoint
+from models.autoencoder import load_readout_checkpoint
 
 import tensorflow as tf
 
@@ -36,6 +36,8 @@ class PlayerUI(QWidget):
 
         self.prediction = prediction
 
+        print('Prediction-Shape:', np.shape(prediction))
+
         self.initUI(input_image, audio_segment)
 
     def initUI(self, input_image, audio_segment):
@@ -44,7 +46,7 @@ class PlayerUI(QWidget):
         height, width = input_image.shape
         input_image = np.uint8(input_image).copy()
 
-        print("Shape:", input_image.shape)
+        print("Image-Shape:", input_image.shape)
         qImg = QImage(input_image.data, width, height, width, QImage.Format_Indexed8)
 
         width = 3200
@@ -159,10 +161,10 @@ class PlayerUI(QWidget):
 
 def predict_stream(spectogram):
     batch_size = 64
-    input_width = 469
+    input_width = 512
 
     with tf.Session() as sess:
-        prediction, net_inputs, dropout_rate = load_checkpoint(sess)
+        net_inputs, prediction = load_readout_checkpoint(sess)
 
         ret = []
         batch = []
@@ -179,10 +181,10 @@ def predict_stream(spectogram):
             start = int(current_window - (input_width / 2))
             end = int(start + input_width)
 
-            batch.append(np.reshape(spectogram[:, start:end], [513, input_width, 1]).astype('uint8'))
+            batch.append(np.reshape(spectogram[:, start:end], [512, input_width, 1]).astype('uint8'))
 
             if len(batch) == batch_size:
-                output = sess.run(prediction, {net_inputs: np.array(batch), dropout_rate: 0})
+                output = sess.run(prediction, {net_inputs: np.array(batch)})
                 output = np.argmax(output, axis=1)
                 ret.extend(output)
                 batch = []
@@ -196,7 +198,7 @@ def read_data(audio_file, rng):
     return sound_info, audio_segment
 
 if __name__ == '__main__':
-    rng = range(400, 450)
+    rng = range(0, 50)
     spectogram, audio_segment = read_data('D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav', rng)
     predictions = predict_stream(spectogram)
     app = QApplication(sys.argv)

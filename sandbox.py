@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image
 from os import listdir
 from os.path import isfile, join
+from models.autoencoder import load_readout_checkpoint
 
 
 def create_tag_file():
@@ -104,4 +105,27 @@ def check_array_loop():
         result = np.array([f for f in files[i:to]])
         print(i, len(result), len(files))
 
-check_array_loop()
+
+def print_convolution(last):
+    if len(last.op.inputs) > 0:
+        print_convolution(last.op.inputs[0])
+
+    print(last.get_shape(), " - ", last.op.name)
+
+def load_by_meta_graph():
+    with tf.Session() as sess:
+        saver = tf.train.import_meta_graph('models/ao_checkpoints_with_readout/{}.meta'.format('autoencoder_with_readout-242900'))
+        saver.restore(sess, 'models/ao_checkpoints_with_readout/{}'.format('autoencoder_with_readout-242900'))
+        names = [n.values() for n in tf.get_default_graph().get_operations()]
+        for n in names:
+            print(n)
+
+        print_convolution(tf.get_default_graph().get_tensor_by_name('gradients_1/readout/MatMul_grad/MatMul_1:0'))
+
+
+def load_by_model():
+    with tf.Session() as sess:
+        load_readout_checkpoint(sess)
+
+#load_by_meta_graph()
+load_by_model()
