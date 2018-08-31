@@ -35,7 +35,13 @@ class AutoEncoder:
         net = tf.layers.conv2d(net, 64, 2)
         net = tf.layers.conv2d(net, 64, 2)
         net = tf.layers.conv2d(net, 64, 2)
-        net = tf.layers.conv2d(net, 64, 2, padding='same')
+        net = tf.layers.conv2d(net, 64, 2)
+        net = tf.layers.conv2d(net, 64, 2)
+        net = tf.layers.conv2d(net, 128, 2)
+        net = tf.layers.conv2d(net, 128, 2)
+        net = tf.layers.conv2d(net, 256, 2)
+        net = tf.layers.conv2d(net, 512, 2)
+        net = tf.layers.conv2d(net, 1024, 2)
 
         shape = net.get_shape()
         shape = [tf.shape(net)[0], shape[1] * shape[2] * shape[3]]
@@ -49,12 +55,15 @@ class AutoEncoder:
             readout_weights = tf.get_variable('kernel')
             readout_biases = tf.get_variable('bias')
 
+        net = tf.layers.conv2d_transpose(net, 512, 9, 2, 'same')
+        net = tf.layers.conv2d_transpose(net, 256, 9, 2, 'same')
+        net = tf.layers.conv2d_transpose(net, 128, 9, 2, 'same')
+        net = tf.layers.conv2d_transpose(net, 64, 9, 2, 'same')
+        net = tf.layers.conv2d_transpose(net, 64, 9, 2, 'same')
+        net = tf.layers.conv2d_transpose(net, 32, 9, 2, 'same')
+        net = tf.layers.conv2d_transpose(net, 32, 9, 2, 'same')
         net = tf.layers.conv2d_transpose(net, 16, 9, 2, 'same')
-        net = tf.layers.conv2d_transpose(net, 64, 9, 2, 'same')
-        net = tf.layers.conv2d_transpose(net, 128, 9, 2, 'same')
-        net = tf.layers.conv2d_transpose(net, 128, 9, 2, 'same')
-        net = tf.layers.conv2d_transpose(net, 64, 9, 2, 'same')
-        net = tf.layers.conv2d_transpose(net, 1, 9, 2, 'same')
+        net = tf.layers.conv2d_transpose(net, 8, 9, 2, 'same')
         net = tf.layers.conv2d_transpose(net, 1, 9, 1, 'same')
 
         self.outputs = net
@@ -126,9 +135,9 @@ def test_net(sess, model, prefix='after', amount=5):
 
     for cnt in range(len(data)):
         img = Image.fromarray(np.uint8(np.array(data[cnt]).reshape([512, 512])), 'L')
-        img.save("D:\\noise\\results\\" + prefix + "_" + str(cnt) + "_original.png")
+        img.save("D:\\noise\\results_v2\\" + prefix + "_" + str(cnt) + "_original.png")
         img = Image.fromarray(np.uint8(np.array(test_images[cnt]).reshape([512, 512])), 'L')
-        img.save("D:\\noise\\results\\" + prefix + "_" + str(cnt) + "_output.png")
+        img.save("D:\\noise\\results_v2\\" + prefix + "_" + str(cnt) + "_output.png")
         cnt += 1
 
 
@@ -151,7 +160,7 @@ def train_encoder():
                 print(_loss, '(' + str(i) + ' of ' + str(steps) + ') [Epoch: ' + str(epoch) + ']')
                 i += 1
 
-            saver.save(sess, 'ao_checkpoints\\autoencoder', global_step=ao.global_step)
+            saver.save(sess, 'ao_checkpoints_v2\\autoencoder', global_step=ao.global_step)
 
             test_net(sess, ao, prefix='epoch_' + str(epoch))
 
@@ -166,7 +175,7 @@ def train_readout():
     saver = tf.train.Saver(max_to_keep=epochs)
 
     with tf.Session() as sess:
-        saver.restore(sess, tf.train.latest_checkpoint('ao_checkpoints'))
+        saver.restore(sess, tf.train.latest_checkpoint('ao_checkpoints_v2'))
         sess.run(tf.local_variables_initializer())
 
         for epoch in range(epochs):
@@ -187,19 +196,19 @@ def train_readout():
 
             print('loss:',  np.mean(losses), 'accuracy:', np.mean(accuracies), '[Epoch:', epoch, ']')
 
-            saver.save(sess, 'ao_checkpoints_with_readout\\autoencoder_with_readout', global_step=ao.global_step)
+            saver.save(sess, 'ao_checkpoints_with_readout_v2\\autoencoder_with_readout', global_step=ao.global_step)
 
 
 def load_readout_checkpoint(sess):
     ao = AutoEncoder()
     saver = tf.train.Saver()
 
-    saver.restore(sess, tf.train.latest_checkpoint('D:\\noise\\src\\models\\checkpoints_backup\\ao_checkpoints_with_readout'))
+    saver.restore(sess, tf.train.latest_checkpoint('D:\\noise\\src\\models\\ao_checkpoints_with_readout_v2'))
     sess.run(tf.local_variables_initializer())
 
     return ao.inputs, ao.readout
 
 if __name__ == '__main__':
-    # train_encoder()
+    train_encoder()
     train_readout()
 

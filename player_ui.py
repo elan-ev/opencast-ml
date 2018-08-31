@@ -72,6 +72,7 @@ class PlayerUI(QWidget):
         self.stop_btn.clicked.connect(self.stop)
 
         self.indicator = QLabel(self)
+        self.indicator.setAlignment(Qt.AlignCenter)
         self.indicator.setGeometry(width - 120, height + 140, 75, 75)
         self.indicator.setStyleSheet(self.color_red)
 
@@ -109,7 +110,7 @@ class PlayerUI(QWidget):
                     self.sld.valueChanged[int].connect(self.changeValue)
                     self.playAt(0)
 
-            time.sleep(0.01)
+            time.sleep(0.02)
 
     def changeValue(self, value):
         if self.chunks is not None:
@@ -132,7 +133,7 @@ class PlayerUI(QWidget):
                         rate=seg.frame_rate,
                         output=True)
 
-        self.chunks = make_chunks(seg, 50)
+        self.chunks = make_chunks(seg, 150)
 
 
     def stop(self):
@@ -152,12 +153,18 @@ class PlayerUI(QWidget):
         self.sld.valueChanged[int].connect(self.changeValue)
 
     def predict(self):
-        current_window = int(self.spectogram.shape[1] / len(self.chunks) * self.current_index)
-        is_noise = self.prediction[current_window] == 0
+        current_window = int((self.spectogram.shape[1] / len(self.chunks) * self.current_index))
+        is_noise = self.prediction[current_window][0] == 0
+        self.indicator.setText(str(int(self.prediction[current_window][1] * 100)) + ' %')
         if is_noise:
             self.indicator.setStyleSheet(self.color_red)
         else:
             self.indicator.setStyleSheet(self.color_green)
+
+def softmax(x, axis=None):
+  e_x = np.exp(x - np.max(x, axis=axis, keepdims=True))
+  return e_x / np.sum(e_x, axis=axis, keepdims=True)
+
 
 def predict_stream(spectogram):
     batch_size = 64
@@ -185,11 +192,13 @@ def predict_stream(spectogram):
 
             if len(batch) == batch_size:
                 output = sess.run(prediction, {net_inputs: np.array(batch)})
-                output = np.argmax(output, axis=1)
-                ret.extend(output)
+                softmaxed = softmax(output, 1)
+                result = np.argmax(output, axis=1)
+                result = [(result[r], softmaxed[r][result[r]]) for r in range(len(result))]
+                ret.extend(result)
                 batch = []
 
-    return ret
+    return np.array(ret)
 
 def read_data(audio_file, rng):
     sound_info = audio_to_complete_spectogram(audio_file, rng)
@@ -198,9 +207,10 @@ def read_data(audio_file, rng):
     return sound_info, audio_segment
 
 if __name__ == '__main__':
-    rng = range(0, 50)
+    rng = range(940, 960)
     spectogram, audio_segment = read_data('D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav', rng)
     predictions = predict_stream(spectogram)
+
     app = QApplication(sys.argv)
     ex = PlayerUI(spectogram, audio_segment, predictions)
     sys.exit(app.exec_())

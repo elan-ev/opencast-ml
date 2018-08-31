@@ -128,4 +128,8 @@ def load_by_model():
         load_readout_checkpoint(sess)
 
 #load_by_meta_graph()
-load_by_model()
+# load_by_model()
+
+l = [(0, 1) for i in range(50)]
+print(np.shape(l))
+np.array(l)
