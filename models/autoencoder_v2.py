@@ -43,6 +43,9 @@ class AutoEncoder:
         net = tf.layers.conv2d(net, 512, 2)
         net = tf.layers.conv2d(net, 1024, 2)
 
+        # -------------------------------------
+        # ------------- READOUT ---------------
+        # -------------------------------------
         shape = net.get_shape()
         shape = [tf.shape(net)[0], shape[1] * shape[2] * shape[3]]
 
@@ -50,10 +53,22 @@ class AutoEncoder:
         # self.readout = tf.layers.dense(dropout_layer, 2, name='readout')
         self.readout = tf.layers.dense(tf.reshape(net, shape), 2, name='readout')
 
-
         with tf.variable_scope('readout', reuse=True):
             readout_weights = tf.get_variable('kernel')
             readout_biases = tf.get_variable('bias')
+
+        self.loss_readout = tf.losses.sparse_softmax_cross_entropy(labels=self.readout_labels, logits=self.readout)
+        self.optimize_readout = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.loss_readout,
+                                                                                             global_step=self.global_step,
+                                                                                             var_list=[
+                                                                                                 readout_weights,
+                                                                                                 readout_biases])
+
+        correct_prediction = tf.equal(tf.argmax(self.readout, axis=1, output_type=tf.int32), self.readout_labels)
+        self.readout_accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        # -------------------------------------
+        # -------------------------------------
+        # -------------------------------------
 
         net = tf.layers.conv2d_transpose(net, 512, 9, 2, 'same')
         net = tf.layers.conv2d_transpose(net, 256, 9, 2, 'same')
@@ -71,15 +86,9 @@ class AutoEncoder:
         # print the shapes of each layer
         self.print_convolution(self.outputs)
 
-        self.loss = tf.losses.mean_squared_error(self.inputs, self.outputs)
+        self.loss = tf.losses.absolute_difference(self.inputs, self.outputs)
         self.optimize = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.loss, global_step=self.global_step)
 
-        self.loss_readout = tf.losses.sparse_softmax_cross_entropy(labels=self.readout_labels, logits=self.readout)
-        self.optimize_readout = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.loss_readout,
-                                                                                             global_step=self.global_step, var_list=[readout_weights, readout_biases])
-
-        correct_prediction = tf.equal(tf.argmax(self.readout, axis=1, output_type=tf.int32), self.readout_labels)
-        self.readout_accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
         tf.summary.scalar('loss', tf.reduce_mean(self.loss))
         self.summary = tf.summary.merge_all()
@@ -142,7 +151,7 @@ def test_net(sess, model, prefix='after', amount=5):
 
 
 def train_encoder():
-    ao = AutoEncoder()
+    ao = AutoEncoder(learning_rate=1e-3)
 
     epochs = 100
 
@@ -155,7 +164,7 @@ def train_encoder():
 
         for epoch in range(epochs):
             i = 0
-            for data, steps in load_data():
+            for data, steps in load_data(batch_size=32):
                 _, _loss = sess.run([ao.optimize, ao.loss], {ao.inputs: data})
                 print(_loss, '(' + str(i) + ' of ' + str(steps) + ') [Epoch: ' + str(epoch) + ']')
                 i += 1
@@ -170,7 +179,7 @@ def train_readout():
 
     ao = AutoEncoder(learning_rate=1e-3)
 
-    epochs = 5
+    epochs = 50
 
     saver = tf.train.Saver(max_to_keep=epochs)
 

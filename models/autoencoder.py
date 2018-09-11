@@ -7,12 +7,24 @@ import random
 
 
 class AutoEncoder:
+    """ First version of an autoencoder-architecture.
+    The bottleneck-layer breaks down the 512x512x1-Input to a 4096-feature-vector,
+    that is used to recreate the input-image.
+    As a loss-function the L2-error is used (which is probably not the best choice (https://arxiv.org/abs/1511.08861),
+    one of the reasons the second version of the autoencoder was created).
+    The readout-layer maps the bottleneck-layer to a 2-features-vector, which stand for "noise"/"no noise".
+    Encoder and Readout-Layer are trained seperately.
+    After each training iteration in the encoder, images are created that compare the decoder-output to a
+    (randomly chosen) input image, to check how good the recreated image looks like.
+    """
     def __init__(self, learning_rate=1e-4):
         self.inputs = tf.placeholder(tf.float32, [None, 512, 512, 1])
         self.readout_labels = tf.placeholder(tf.int32, [None])
 
         self.global_step = tf.Variable(0, trainable=False, name='global_step')
 
+        # Encoder
+        # -------------------------------
         net = tf.layers.conv2d(self.inputs, 32, 2)
         net = tf.layers.max_pooling2d(net, [3, 3], 2)
         net = tf.layers.conv2d(net, 64, 2)
@@ -40,15 +52,16 @@ class AutoEncoder:
         shape = net.get_shape()
         shape = [tf.shape(net)[0], shape[1] * shape[2] * shape[3]]
 
-        # dropout_layer = tf.layers.dropout(tf.reshape(net, shape), rate=0.2, training=False)
-        # self.readout = tf.layers.dense(dropout_layer, 2, name='readout')
+        # Readout-Layer
+        # --------------------------------------
         self.readout = tf.layers.dense(tf.reshape(net, shape), 2, name='readout')
-
 
         with tf.variable_scope('readout', reuse=True):
             readout_weights = tf.get_variable('kernel')
             readout_biases = tf.get_variable('bias')
 
+        # Decoder
+        # ------------------------------------
         net = tf.layers.conv2d_transpose(net, 16, 9, 2, 'same')
         net = tf.layers.conv2d_transpose(net, 64, 9, 2, 'same')
         net = tf.layers.conv2d_transpose(net, 128, 9, 2, 'same')
@@ -62,16 +75,18 @@ class AutoEncoder:
         # print the shapes of each layer
         self.print_convolution(self.outputs)
 
+        # Loss and optimization for the encoder and the readout-layer
         self.loss = tf.losses.mean_squared_error(self.inputs, self.outputs)
         self.optimize = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.loss, global_step=self.global_step)
 
         self.loss_readout = tf.losses.sparse_softmax_cross_entropy(labels=self.readout_labels, logits=self.readout)
         self.optimize_readout = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.loss_readout,
                                                                                              global_step=self.global_step, var_list=[readout_weights, readout_biases])
-
+        # Check the accuracy with a test-data-set
         correct_prediction = tf.equal(tf.argmax(self.readout, axis=1, output_type=tf.int32), self.readout_labels)
         self.readout_accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+        # loss-summaries for tensorboard if needed
         tf.summary.scalar('loss', tf.reduce_mean(self.loss))
         self.summary = tf.summary.merge_all()
 
@@ -84,6 +99,10 @@ class AutoEncoder:
 
 
 def load_data(batch_size=32):
+    """ Loading the spectograms randomly
+    :param batch_size:
+    :return: a generator which generates the input-image-batches as numpy-arrays
+    """
     path = 'D:\\noise\\spectograms\\unsupervised'
     files = [f for f in listdir(path) if isfile(join(path, f))]
     random.shuffle(files)
@@ -121,6 +140,12 @@ def load_readout_data(batch_size=32):
 
 
 def test_net(sess, model, prefix='after', amount=5):
+    """ Create input-output-image-pairs to check how good the network performes
+    :param sess:
+    :param model: The AutoEncoder-Class
+    :param prefix: Filename-Prefix
+    :param amount: how much randomly chosen images should be created
+    """
     data, _ = next(load_data(batch_size=amount))
     test_images = sess.run([model.outputs], {model.inputs: data})[0]
 

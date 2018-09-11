@@ -14,7 +14,7 @@ import threading
 
 from pylab import *
 
-from models.autoencoder import load_readout_checkpoint
+from models.autoencoder_v2 import load_readout_checkpoint
 
 import tensorflow as tf
 
@@ -83,6 +83,8 @@ class PlayerUI(QWidget):
 
         self.window_open = True
 
+        self.playAt(0)
+
         self.update_thread = threading.Thread(target=self.update)
         self.update_thread.start()
 
@@ -120,9 +122,9 @@ class PlayerUI(QWidget):
         if self.playing:
             self.playing = False
         else:
-            self.playing = True
             if self.chunks is None:
                 self.playAt(0)
+            self.playing = True
 
     def playAt(self, index):
         seg = self.audio[index:-1]
@@ -133,7 +135,7 @@ class PlayerUI(QWidget):
                         rate=seg.frame_rate,
                         output=True)
 
-        self.chunks = make_chunks(seg, 150)
+        self.chunks = make_chunks(seg, 50)
 
 
     def stop(self):
@@ -207,8 +209,10 @@ def read_data(audio_file, rng):
     return sound_info, audio_segment
 
 if __name__ == '__main__':
-    rng = range(940, 960)
-    spectogram, audio_segment = read_data('D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.wav', rng)
+    rng = range(840, 860)
+    # rng = range(1000, 1010)
+    #spectogram, audio_segment = read_data('D:\\noise\\records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d.wav', rng)
+    spectogram, audio_segment = read_data('D:\\noise\\records\\8e0223f9-4357-4fbb-8ede-f81477dec101.wav', rng)
     predictions = predict_stream(spectogram)
 
     app = QApplication(sys.argv)
