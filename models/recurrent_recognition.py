@@ -1,6 +1,4 @@
 import tensorflow as tf
-from hypergradient.Adam_HD_optimizer import AdamHDOptimizer
-from hypergradient.SGDN_HD_optimizer import MomentumSGDHDOptimizer
 
 from tensorflow.contrib import rnn
 
@@ -31,7 +29,6 @@ class RecurrentRecognition:
 
         self.loss = tf.losses.sparse_softmax_cross_entropy(self.labels, self.readout)
         self.optimize = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.loss, global_step=self.global_step)
-        #self.optimize = MomentumSGDHDOptimizer(alpha_0=learning_rate).minimize(self.loss, self.global_step)
 
         self.prediction_comparison = tf.equal(tf.cast(self.labels, tf.int64), tf.argmax(self.readout, axis=1))
         self.accuracy = tf.reduce_mean(tf.cast(self.prediction_comparison, tf.float32))
