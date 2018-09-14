@@ -7,12 +7,24 @@ import random
 
 
 class AutoEncoder:
+    """ Second version of an autoencoder-architecture.
+        The bottleneck-layer breaks down the 512x512x1-Input to a 1024-feature-vector,
+        that is used to recreate the input-image.
+        As a loss-function the L1-error is used, because it seems to reduce artifacts (https://arxiv.org/abs/1511.08861).
+        The readout-layer maps the bottleneck-layer to a 2-features-vector, which stand for "noise"/"no noise".
+        Encoder and Readout-Layer are trained seperately.
+        After each training iteration in the encoder, images are created that compare the decoder-output to a
+        (randomly chosen) input image, to check how good the recreated image looks like.
+        """
     def __init__(self, learning_rate=1e-4):
         self.inputs = tf.placeholder(tf.float32, [None, 512, 512, 1])
         self.readout_labels = tf.placeholder(tf.int32, [None])
 
         self.global_step = tf.Variable(0, trainable=False, name='global_step')
 
+        # ---------------------------
+        # ------- ENCODER -----------
+        # ---------------------------
         net = tf.layers.conv2d(self.inputs, 32, 2)
         net = tf.layers.max_pooling2d(net, [3, 3], 2)
         net = tf.layers.conv2d(net, 64, 2)
@@ -70,6 +82,10 @@ class AutoEncoder:
         # -------------------------------------
         # -------------------------------------
 
+
+        # ---------------------------
+        # ------- DECODER -----------
+        # ---------------------------
         net = tf.layers.conv2d_transpose(net, 512, 9, 2, 'same')
         net = tf.layers.conv2d_transpose(net, 256, 9, 2, 'same')
         net = tf.layers.conv2d_transpose(net, 128, 9, 2, 'same')
@@ -94,6 +110,9 @@ class AutoEncoder:
         self.summary = tf.summary.merge_all()
 
     def print_convolution(self, last):
+        """ Prints the structure of the network to the console by looking from the last node backwards.
+        :param last:
+        """
         if len(last.op.inputs) > 0:
             self.print_convolution(last.op.inputs[0])
 
@@ -102,6 +121,10 @@ class AutoEncoder:
 
 
 def load_data(batch_size=32):
+    """ Loading the spectograms randomly
+    :param batch_size:
+    :return: a generator which generates the input-image-batches as numpy-arrays
+    """
     path = 'D:\\noise\\spectograms\\unsupervised'
     files = [f for f in listdir(path) if isfile(join(path, f))]
     random.shuffle(files)
@@ -117,6 +140,9 @@ def load_data(batch_size=32):
 
 def load_readout_data(batch_size=32):
     base_dir = "D:\\noise\\"
+
+    # this is used to balance the amount of 0- and 1-Labels.
+    # This just works, because the first 344 labels in our audio signal seem to be balanced
     number_of_labels = 344
 
     with open(base_dir + "tagged_5.4584s.txt") as f:
@@ -139,6 +165,12 @@ def load_readout_data(batch_size=32):
 
 
 def test_net(sess, model, prefix='after', amount=5):
+    """ Create input-output-image-pairs to check how good the network performes
+    :param sess:
+    :param model: The AutoEncoder-Class
+    :param prefix: Filename-Prefix
+    :param amount: how much randomly chosen images should be created
+    """
     data, _ = next(load_data(batch_size=amount))
     test_images = sess.run([model.outputs], {model.inputs: data})[0]
 

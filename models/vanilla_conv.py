@@ -1,8 +1,10 @@
 import tensorflow as tf
-from hypergradient.Adam_HD_optimizer import AdamHDOptimizer
-from hypergradient.SGDN_HD_optimizer import MomentumSGDHDOptimizer
 
 class VanillaConv:
+    """ The simplest form of the classification:
+    An Image is put into the network and convolutional layers classify it as "noise" or "speaker".
+    The success of this is very dependent on the amount of labeled data that is given.
+    """
     def __init__(self, learning_rate=1e-4):
         self.inputs = tf.placeholder(tf.float32, [None, 513, 469, 1])
         self.labels = tf.placeholder(tf.int32, [None])

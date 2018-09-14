@@ -21,7 +21,10 @@ import tensorflow as tf
 import time
 
 class PlayerUI(QWidget):
-
+    """ The Audio-Player to test your networks.
+    Plays the audio stream and shows the predictions by a green/red label and its
+    certainty at that exact point.
+    """
     def __init__(self, input_image, audio_segment, prediction):
         super().__init__()
 
@@ -163,12 +166,14 @@ class PlayerUI(QWidget):
         else:
             self.indicator.setStyleSheet(self.color_green)
 
+
 def softmax(x, axis=None):
   e_x = np.exp(x - np.max(x, axis=axis, keepdims=True))
   return e_x / np.sum(e_x, axis=axis, keepdims=True)
 
 
 def predict_stream(spectogram):
+    """ Classifies the spectogram at every time-step, based on the trained network. """
     batch_size = 64
     input_width = 512
 

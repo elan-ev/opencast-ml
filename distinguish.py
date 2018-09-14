@@ -13,6 +13,12 @@ batch_size = 32
 
 model = VanillaConv(learning_rate=1e-3)
 
+# ----------------------------------------------
+# These were the first tests on the Vanilla-Convolution.
+# Might be helpful so I just leave it here.
+# -----------------------------------------------
+
+
 def load_data():
     with open(base_dir + "records\\1ff235e4-01e8-469f-a8af-87395bfd7f0d_cut.txt") as f:
         tags = [int(t[0]) for t in f.readlines()[0:number_of_labels]]

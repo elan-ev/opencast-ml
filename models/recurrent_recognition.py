@@ -5,6 +5,14 @@ from hypergradient.SGDN_HD_optimizer import MomentumSGDHDOptimizer
 from tensorflow.contrib import rnn
 
 class RecurrentRecognition:
+    """ ToDo: Not yet implemented.
+    Idea: Learn the classification by looking at the audio signal in a time-dependent way.
+    In CNNs, a feature of a convolutional layer is influenced by a relatively small surrounding area, depending on
+    the depth of the network. Therefore it might miss information that influences a single point by features that
+    are spatially further away (in this case horizontally in our spectogram).
+    So it might be helpful to train a network with a GRU- or LSTM-Cell. The LSTM-Cell might even be trained unsupervised
+    (https://blog.openai.com/unsupervised-sentiment-neuron/).
+    """
     def __init__(self, learning_rate=1e-4):
         self.inputs = tf.placeholder(tf.float32, [None, 513, 469, 1])
         self.labels = tf.placeholder(tf.int32, [None])

@@ -18,6 +18,9 @@ class AutoEncoder:
     (randomly chosen) input image, to check how good the recreated image looks like.
     """
     def __init__(self, learning_rate=1e-4):
+        """
+        :param learning_rate:
+        """
         self.inputs = tf.placeholder(tf.float32, [None, 512, 512, 1])
         self.readout_labels = tf.placeholder(tf.int32, [None])
 
@@ -82,7 +85,8 @@ class AutoEncoder:
         self.loss_readout = tf.losses.sparse_softmax_cross_entropy(labels=self.readout_labels, logits=self.readout)
         self.optimize_readout = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.loss_readout,
                                                                                              global_step=self.global_step, var_list=[readout_weights, readout_biases])
-        # Check the accuracy with a test-data-set
+        # Check the accuracy of the readout-layer with a test-data-set
+        # (For the AutoEncoder there is no need or possibility to check for accuracy)
         correct_prediction = tf.equal(tf.argmax(self.readout, axis=1, output_type=tf.int32), self.readout_labels)
         self.readout_accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -91,6 +95,9 @@ class AutoEncoder:
         self.summary = tf.summary.merge_all()
 
     def print_convolution(self, last):
+        """ Prints the structure of the network to the console by looking from the last node backwards.
+        :param last:
+        """
         if len(last.op.inputs) > 0:
             self.print_convolution(last.op.inputs[0])
 
@@ -118,6 +125,9 @@ def load_data(batch_size=32):
 
 def load_readout_data(batch_size=32):
     base_dir = "D:\\noise\\"
+
+    # this is used to balance the amount of 0- and 1-Labels.
+    # This just works, because the first 344 labels in our audio signal seem to be balanced
     number_of_labels = 344
 
     with open(base_dir + "tagged_5.4584s.txt") as f:
@@ -160,7 +170,7 @@ def test_net(sess, model, prefix='after', amount=5):
 def train_encoder():
     ao = AutoEncoder()
 
-    epochs = 100
+    epochs = 100 # number of iterations (1 iteration = training on 1 complete dataset)
 
     saver = tf.train.Saver(max_to_keep=epochs)
 

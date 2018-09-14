@@ -8,11 +8,8 @@ import scipy.io.wavfile as wav
 from numpy.lib import stride_tricks
 from PIL import Image
 from os.path import join
-import sys
 
 """ short time fourier transform of audio signal """
-
-
 def stft(sig, frameSize, overlapFac=0.5, window=np.hanning):
     win = window(frameSize)
     hopSize = int(frameSize - np.floor(overlapFac * frameSize))
@@ -34,8 +31,6 @@ def stft(sig, frameSize, overlapFac=0.5, window=np.hanning):
 
 
 """ scale frequency axis logarithmically """
-
-
 def logscale_spec(spec, sr=44100, factor=20.):
     timebins, freqbins = np.shape(spec)
 
@@ -84,6 +79,17 @@ def plotstft(audiopath, binsize=2 ** 10, seconds=5.0, rng=None):
         current += step_size
 
 def audio_to_complete_spectogram(audiopath, rng=None):
+    """ Creates spectograms of an audio-file.
+    :param audiopath:
+    :param rng: A sub-range of the audio-signal (in ms)
+    :return: a numpy-array
+    """
+
+    # This weird number of seconds is chosen, because on a sample-rate of 48000
+    # it creates arrays of the exact the length of 512
+    # Although the height of the array results in the length of 513, we crop the array
+    # to 512x512. This is needed to create a useful (de)convolutional layer-structure.
+    # We might miss some information (1 Pixel) of very high frequencies though!
     seconds = 5.4584
     complete = None
     for part in plotstft(audiopath, seconds=seconds, rng=rng):
@@ -97,6 +103,11 @@ def audio_to_complete_spectogram(audiopath, rng=None):
 
 
 def audio_to_complete_diff_spectogram(audio1, audio2):
+    """ Helper-Method to create the difference of 2 audio-signals
+    :param audio1:
+    :param audio2:
+    :return:
+    """
     complete = None
     for part1, part2 in zip(plotstft(audio1), plotstft(audio2)):
         if complete is None:
@@ -104,13 +115,6 @@ def audio_to_complete_diff_spectogram(audio1, audio2):
         else:
             complete = np.concatenate((complete, np.absolute(part1 - part2)), axis=1)
     return complete
-
-
-def mse(img):
-    flat = img.flatten()
-    max_error = 255 * len(flat)
-    return np.sum(np.square(flat)) / max_error
-    # return np.median(np.square(img.flatten()))
 
 
 # Print iterations progress
