@@ -23,6 +23,12 @@ at your root-folder).
 ## Visualizing
 View your result by loading and classifying an audio-stream into the *PlayerUI* class from *player_ui.py* at your root
 folder.<br>
+The player loads a given audio-stream and classifies each time-step with the trained network. It then gives the possibility
+to play the stream and at the same time it shows the classification with a red or green square (red: noise, green: speech)
+and its certainty about it.<br>
+<br>
+![PlayerUI Screenshot](PlayerUI.png?raw=true "PlayerUI")
+<br><br>
 See the main-method in *player_ui.py* for more details.
 
 ## Existing Architectures
